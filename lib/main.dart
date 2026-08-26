@@ -5,6 +5,10 @@ import 'services/auth_service.dart';
 import 'theme/app_theme.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  debugPrint('APP: main() started');
+
   runApp(const MyApp());
 }
 
@@ -20,12 +24,16 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('APP: MyApp build()');
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Municipal Inspection System',
       theme: AppTheme.lightTheme,
       initialRoute: '/',
       onGenerateRoute: (settings) {
+        debugPrint('APP: Opening route -> ${settings.name}');
+
         return AppRoutes.generateRoute(
           settings,
           authService,

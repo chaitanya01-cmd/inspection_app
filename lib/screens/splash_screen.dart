@@ -19,21 +19,28 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
+    debugPrint('APP: Splash initState()');
+
     _startApp();
   }
 
   Future<void> _startApp() async {
-    // Keep splash screen visible for 2 seconds.
+    debugPrint('APP: Splash started');
+
     await Future.delayed(
       const Duration(seconds: 2),
     );
 
-    if (!mounted) return;
+    debugPrint('APP: Splash delay finished');
 
-    // -----------------------------------------
-    // USER ALREADY LOGGED IN
-    // -----------------------------------------
+    if (!mounted) {
+      debugPrint('APP: Splash is no longer mounted');
+      return;
+    }
+
     if (widget.authService.isLoggedIn) {
+      debugPrint('APP: Going to dashboard');
+
       Navigator.pushReplacementNamed(
         context,
         '/dashboard',
@@ -42,10 +49,8 @@ class _SplashScreenState extends State<SplashScreen> {
       return;
     }
 
-    // -----------------------------------------
-    // NEW / LOGGED-OUT USER
-    // -----------------------------------------
-    // First select Inspector or Municipal Officer.
+    debugPrint('APP: Going to role selection');
+
     Navigator.pushReplacementNamed(
       context,
       '/role-selection',
@@ -54,32 +59,25 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('APP: Splash build()');
+
     return Scaffold(
       backgroundColor: const Color(0xFF1565C0),
-
       body: SafeArea(
         child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 24,
             ),
-
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-
               children: [
-                // =====================================
-                // APP LOGO
-                // =====================================
-
                 Container(
                   width: 105,
                   height: 105,
-
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(26),
-
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(
@@ -90,24 +88,16 @@ class _SplashScreenState extends State<SplashScreen> {
                       ),
                     ],
                   ),
-
                   child: const Icon(
                     Icons.location_city,
                     size: 58,
                     color: Color(0xFF1565C0),
                   ),
                 ),
-
                 const SizedBox(height: 30),
-
-                // =====================================
-                // APP NAME
-                // =====================================
-
                 const Text(
                   'Municipal Inspection',
                   textAlign: TextAlign.center,
-
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 27,
@@ -115,42 +105,26 @@ class _SplashScreenState extends State<SplashScreen> {
                     letterSpacing: 0.5,
                   ),
                 ),
-
                 const SizedBox(height: 10),
-
-                // =====================================
-                // APP DESCRIPTION
-                // =====================================
-
                 const Text(
                   'Smart Inspection & Management System',
                   textAlign: TextAlign.center,
-
                   style: TextStyle(
                     color: Colors.white70,
                     fontSize: 15,
                     height: 1.4,
                   ),
                 ),
-
                 const SizedBox(height: 45),
-
-                // =====================================
-                // LOADING INDICATOR
-                // =====================================
-
                 const SizedBox(
                   width: 32,
                   height: 32,
-
                   child: CircularProgressIndicator(
                     color: Colors.white,
                     strokeWidth: 3,
                   ),
                 ),
-
                 const SizedBox(height: 18),
-
                 const Text(
                   'Loading...',
                   style: TextStyle(
