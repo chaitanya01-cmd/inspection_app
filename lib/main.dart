@@ -1,14 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'camera_screen.dart';
+import 'screens/municipal_shell.dart';
 
-late List<CameraDescription> _cameras;
+late List<CameraDescription> cameras;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  _cameras = await availableCameras();
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: CameraScreen(cameras: _cameras),
-  ));
+
+  cameras = await availableCameras();
+
+  runApp(const MunicipalInspectionApp());
+}
+
+class MunicipalInspectionApp extends StatelessWidget {
+  const MunicipalInspectionApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Municipal Inspection',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.indigo,
+        ),
+        useMaterial3: true,
+      ),
+      home: const MunicipalShell(),
+      routes: {
+        '/camera': (context) => CameraScreen(cameras: cameras),
+      },
+    );
+  }
 }
