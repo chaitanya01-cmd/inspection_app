@@ -1,6 +1,5 @@
 plugins {
     id("com.android.application")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -24,10 +23,13 @@ android {
 
     buildTypes {
         release {
-            // Signing with debug keys for now so release builds can run locally.
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+}
+
+dependencies {
+    implementation("androidx.concurrent:concurrent-futures:1.2.0")
 }
 
 kotlin {

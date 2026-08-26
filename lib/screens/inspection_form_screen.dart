@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../models/inspection_report.dart';
 import '../services/inspection_service.dart';
@@ -13,6 +16,9 @@ class InspectionFormScreen extends StatefulWidget {
 
 class _InspectionFormScreenState extends State<InspectionFormScreen> {
   final _formKey = GlobalKey<FormState>();
+  final ImagePicker _imagePicker = ImagePicker();
+
+  final List<String> _selectedImagePaths = [];
 
   // ==========================================
   // TEXT CONTROLLERS
@@ -50,11 +56,8 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
   // ==========================================
 
   String _inspectionType = 'Infrastructure Inspection';
-
   String _assetType = 'Road';
-
   String _hazardCategory = 'Structural Damage';
-
   String _priority = 'Medium';
 
   // ==========================================
@@ -68,7 +71,6 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
 
   // ==========================================
   // RISK SCORES
-  // Scale: 1 to 5
   // ==========================================
 
   double _likelihoodScore = 3;
@@ -105,6 +107,66 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
 
   String get _riskLevel {
     return InspectionService.getRiskLevel(_riskScore);
+  }
+
+  // ==========================================
+  // CAMERA / GALLERY
+  // ==========================================
+
+  Future<void> _takePhoto() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 85,
+      );
+
+      if (image != null && mounted) {
+        setState(() {
+          _selectedImagePaths.add(image.path);
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unable to open camera: $e'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _pickFromGallery() async {
+    try {
+      final List<XFile> images =
+          await _imagePicker.pickMultiImage(
+        imageQuality: 85,
+      );
+
+      if (images.isNotEmpty && mounted) {
+        setState(() {
+          for (final image in images) {
+            if (!_selectedImagePaths.contains(image.path)) {
+              _selectedImagePaths.add(image.path);
+            }
+          }
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unable to select images: $e'),
+        ),
+      );
+    }
+  }
+
+  void _removeImage(int index) {
+    setState(() {
+      _selectedImagePaths.removeAt(index);
+    });
   }
 
   // ==========================================
@@ -153,14 +215,12 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
     final report = InspectionReport(
       id: InspectionService.generateReportId(),
 
-      // Inspection details
       inspectionDate: DateTime.now(),
       inspectorName: _inspectorNameController.text.trim(),
       inspectorId: _inspectorIdController.text.trim(),
       department: 'Municipal Inspection Department',
       inspectionType: _inspectionType,
 
-      // Asset details
       assetName: _assetNameController.text.trim(),
       assetType: _assetType,
       address: _addressController.text.trim(),
@@ -171,7 +231,6 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
       assetAge: int.tryParse(_assetAgeController.text.trim()) ?? 0,
       responsibleAuthority: _authorityController.text.trim(),
 
-      // Hazard details
       hazardCategory: _hazardCategory,
       hazardDescription: _hazardDescriptionController.text.trim(),
       rootCause: _rootCauseController.text.trim(),
@@ -185,7 +244,6 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
           int.tryParse(_previousIncidentCountController.text.trim()) ?? 0,
       repeatedReports: _repeatedReports,
 
-      // Risk factors
       likelihoodScore: _likelihoodScore.toInt(),
       impactScore: _impactScore.toInt(),
       exposureScore: _exposureScore.toInt(),
@@ -196,7 +254,6 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
       controlEffectivenessScore:
           _controlEffectivenessScore.toInt(),
 
-      // Impact analysis
       humanSafetyImpact: _humanSafetyImpact.toInt(),
       propertyImpact: _propertyImpact.toInt(),
       environmentalImpact: _environmentalImpact.toInt(),
@@ -204,17 +261,15 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
       serviceDisruptionImpact:
           _serviceDisruptionImpact.toInt(),
 
-      // Risk result
       riskScore: _riskScore,
       riskLevel: _riskLevel,
       severity: _riskLevel == 'Critical' ? 'Critical' : _riskLevel,
       status: 'Open',
 
-      // Evidence
-      imagePaths: [],
+      // SAVED EVIDENCE PHOTOS
+      imagePaths: List<String>.from(_selectedImagePaths),
       evidenceNotes: _evidenceNotesController.text.trim(),
 
-      // Action plan
       immediateActionRequired: _immediateActionRequired,
       immediateAction: _immediateActionController.text.trim(),
       recommendedAction:
@@ -225,7 +280,6 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
       targetResolutionDate:
           DateTime.now().add(const Duration(days: 7)),
 
-      // Notes
       inspectorNotes: _inspectorNotesController.text.trim(),
     );
 
@@ -244,10 +298,7 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
   // SECTION TITLE
   // ==========================================
 
-  Widget _sectionTitle(
-    String title,
-    IconData icon,
-  ) {
+  Widget _sectionTitle(String title, IconData icon) {
     return Padding(
       padding: const EdgeInsets.only(
         top: 12,
@@ -362,9 +413,7 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
                 fontSize: 16,
               ),
             ),
-
             const SizedBox(height: 4),
-
             Text(
               description,
               style: TextStyle(
@@ -372,7 +421,6 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
                 fontSize: 13,
               ),
             ),
-
             Slider(
               value: value,
               min: 1,
@@ -381,11 +429,10 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
               label: value.toInt().toString(),
               onChanged: onChanged,
             ),
-
-            Row(
+            const Row(
               mainAxisAlignment:
                   MainAxisAlignment.spaceBetween,
-              children: const [
+              children: [
                 Text('Low'),
                 Text('Medium'),
                 Text('High'),
@@ -419,6 +466,119 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
   }
 
   // ==========================================
+  // EVIDENCE PHOTO SECTION
+  // ==========================================
+
+  Widget _evidenceSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionTitle(
+          'Evidence & Documentation',
+          Icons.camera_alt,
+        ),
+
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: _takePhoto,
+                icon: const Icon(Icons.camera_alt),
+                label: const Text('Take Photo'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _pickFromGallery,
+                icon: const Icon(Icons.photo_library),
+                label: const Text('Gallery'),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 16),
+
+        if (_selectedImagePaths.isEmpty)
+          const Card(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.image_not_supported_outlined,
+                      size: 40,
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'No evidence photos selected yet.',
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )
+        else
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _selectedImagePaths.length,
+            gridDelegate:
+                const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio: 1,
+            ),
+            itemBuilder: (context, index) {
+              final imagePath = _selectedImagePaths[index];
+
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.file(
+                      File(imagePath),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: CircleAvatar(
+                      backgroundColor: Colors.red,
+                      radius: 18,
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                        onPressed: () => _removeImage(index),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+
+        const SizedBox(height: 16),
+
+        _textField(
+          controller: _evidenceNotesController,
+          label: 'Evidence Notes',
+          maxLines: 3,
+          required: false,
+        ),
+      ],
+    );
+  }
+
+  // ==========================================
   // BUILD UI
   // ==========================================
 
@@ -428,16 +588,11 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
       appBar: AppBar(
         title: const Text('New Risk Inspection'),
       ),
-
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // ======================================
-            // INSPECTION DETAILS
-            // ======================================
-
             _sectionTitle(
               'Inspection Details',
               Icons.assignment,
@@ -474,10 +629,6 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
             ),
 
             const Divider(height: 32),
-
-            // ======================================
-            // ASSET & LOCATION
-            // ======================================
 
             _sectionTitle(
               'Asset & Location Details',
@@ -537,10 +688,6 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
             ),
 
             const Divider(height: 32),
-
-            // ======================================
-            // HAZARD DETAILS
-            // ======================================
 
             _sectionTitle(
               'Hazard Identification',
@@ -639,10 +786,6 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
 
             const Divider(height: 32),
 
-            // ======================================
-            // CORE RISK ANALYSIS
-            // ======================================
-
             _sectionTitle(
               'Core Risk Engine Analysis',
               Icons.analytics,
@@ -698,10 +841,6 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
 
             const Divider(height: 32),
 
-            // ======================================
-            // ADDITIONAL RISK FACTORS
-            // ======================================
-
             _sectionTitle(
               'Additional Risk Factors',
               Icons.tune,
@@ -744,10 +883,6 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
             ),
 
             const Divider(height: 32),
-
-            // ======================================
-            // IMPACT ANALYSIS
-            // ======================================
 
             _sectionTitle(
               'Impact Analysis',
@@ -816,10 +951,6 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
 
             const Divider(height: 32),
 
-            // ======================================
-            // LIVE RISK RESULT
-            // ======================================
-
             _sectionTitle(
               'Live Risk Assessment',
               Icons.speed,
@@ -832,13 +963,9 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
                   children: [
                     const Text(
                       'Calculated Risk Score',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(fontSize: 16),
                     ),
-
                     const SizedBox(height: 8),
-
                     Text(
                       _riskScore.toStringAsFixed(0),
                       style: const TextStyle(
@@ -846,9 +973,7 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     const SizedBox(height: 8),
-
                     Text(
                       _riskLevel,
                       style: const TextStyle(
@@ -856,9 +981,7 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     const SizedBox(height: 12),
-
                     const Text(
                       'Risk Score = Likelihood × Impact × Exposure × Vulnerability',
                       textAlign: TextAlign.center,
@@ -871,55 +994,12 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
             const Divider(height: 32),
 
             // ======================================
-            // EVIDENCE
+            // EVIDENCE WITH CAMERA AND GALLERY
             // ======================================
 
-            _sectionTitle(
-              'Evidence & Documentation',
-              Icons.camera_alt,
-            ),
-
-            Card(
-              child: ListTile(
-                leading: const Icon(
-                  Icons.camera_alt,
-                ),
-                title: const Text(
-                  'Camera Evidence',
-                ),
-                subtitle: const Text(
-                  'Photo capture will be added in the next step.',
-                ),
-                trailing: const Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                ),
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Camera integration is the next step.',
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            _textField(
-              controller: _evidenceNotesController,
-              label: 'Evidence Notes',
-              maxLines: 3,
-              required: false,
-            ),
+            _evidenceSection(),
 
             const Divider(height: 32),
-
-            // ======================================
-            // ACTION PLAN
-            // ======================================
 
             _sectionTitle(
               'Risk Mitigation & Action Plan',
@@ -981,10 +1061,6 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
             ),
 
             const SizedBox(height: 24),
-
-            // ======================================
-            // SAVE BUTTON
-            // ======================================
 
             SizedBox(
               height: 54,
