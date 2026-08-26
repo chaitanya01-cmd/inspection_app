@@ -1,0 +1,1 @@
+ C:\\Users\\Admin\\StudioProjects\\inspector_dashboard\\.dart_tool\\flutter_build\\e18ccca9b1a012f5761cac52fa5fbdf6\\native_assets.json: 
