@@ -32,9 +32,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   int get criticalReports {
-    return reports
-        .where((r) => r.severity == 'Critical')
-        .length;
+    return reports.where((r) => r.severity == 'Critical').length;
   }
 
   int get repeatedReports {
@@ -48,6 +46,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         builder: (_) => const InspectionFormScreen(),
       ),
     );
+
+    if (!mounted) return;
 
     setState(loadReports);
   }
@@ -89,7 +89,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               physics: const NeverScrollableScrollPhysics(),
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
-              childAspectRatio: 1.5,
+
+              // Increased height to prevent card overflow.
+              childAspectRatio: 1.2,
+
               children: [
                 DashboardCard(
                   title: 'Total Reports',
@@ -130,12 +133,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const Center(
                 child: Padding(
                   padding: EdgeInsets.all(30),
-                  child: Text('No inspection reports yet.'),
+                  child: Text(
+                    'No inspection reports yet.',
+                  ),
                 ),
               ),
 
             ...reports.map(
-                  (report) => ReportCard(
+              (report) => ReportCard(
                 report: report,
                 onTap: () {
                   Navigator.push(
@@ -149,6 +154,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 },
               ),
             ),
+
+            const SizedBox(height: 100),
           ],
         ),
       ),

@@ -6,7 +6,7 @@ import '../services/auth_service.dart';
 import '../screens/splash_screen.dart';
 import '../screens/role_selection_screen.dart';
 import '../screens/login_screen.dart';
-import '../screens/dashboard_screen.dart';
+import '../screens/inspector_dashboard.dart';
 import '../screens/municipal_dashboard.dart';
 
 class AppRoutes {
@@ -15,9 +15,7 @@ class AppRoutes {
     AuthService authService,
   ) {
     switch (settings.name) {
-      // =========================
-      // SPLASH
-      // =========================
+      // SPLASH SCREEN
       case '/':
         return MaterialPageRoute(
           settings: settings,
@@ -26,9 +24,7 @@ class AppRoutes {
           ),
         );
 
-      // =========================
       // ROLE SELECTION
-      // =========================
       case '/role-selection':
         return MaterialPageRoute(
           settings: settings,
@@ -37,9 +33,7 @@ class AppRoutes {
           ),
         );
 
-      // =========================
       // LOGIN
-      // =========================
       case '/login':
         final arguments = settings.arguments;
 
@@ -63,10 +57,9 @@ class AppRoutes {
           ),
         );
 
-      // =========================
       // DASHBOARD
-      // =========================
       case '/dashboard':
+        // Check login first
         if (!authService.isLoggedIn) {
           return MaterialPageRoute(
             builder: (_) => const Scaffold(
@@ -79,19 +72,17 @@ class AppRoutes {
           );
         }
 
-        // =========================
         // INSPECTOR DASHBOARD
-        // =========================
         if (authService.role == UserRole.inspector) {
           return MaterialPageRoute(
             settings: settings,
-            builder: (_) => const DashboardScreen(),
+            builder: (_) => InspectorDashboard(
+              authService: authService,
+            ),
           );
         }
 
-        // =========================
-        // MUNICIPAL OFFICER DASHBOARD
-        // =========================
+        // MUNICIPAL DASHBOARD
         if (authService.role == UserRole.municipal) {
           return MaterialPageRoute(
             settings: settings,
@@ -101,6 +92,7 @@ class AppRoutes {
           );
         }
 
+        // NO ROLE FOUND
         return MaterialPageRoute(
           builder: (_) => const Scaffold(
             body: Center(
@@ -111,9 +103,7 @@ class AppRoutes {
           ),
         );
 
-      // =========================
       // UNKNOWN ROUTE
-      // =========================
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

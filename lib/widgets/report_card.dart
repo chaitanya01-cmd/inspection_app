@@ -12,8 +12,8 @@ class ReportCard extends StatelessWidget {
     required this.onTap,
   });
 
-  Color _severityColor() {
-    switch (report.severity) {
+  Color _getRiskColor() {
+    switch (report.riskLevel) {
       case 'Critical':
         return Colors.red;
       case 'High':
@@ -23,32 +23,16 @@ class ReportCard extends StatelessWidget {
       case 'Low':
         return Colors.green;
       default:
-        return Colors.grey;
-    }
-  }
-
-  IconData _severityIcon() {
-    switch (report.severity) {
-      case 'Critical':
-        return Icons.dangerous;
-      case 'High':
-        return Icons.warning;
-      case 'Medium':
-        return Icons.info_outline;
-      case 'Low':
-        return Icons.check_circle_outline;
-      default:
-        return Icons.assignment;
+        return Colors.blueGrey;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final severityColor = _severityColor();
+    final riskColor = _getRiskColor();
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
@@ -58,21 +42,21 @@ class ReportCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CircleAvatar(
-                backgroundColor: severityColor.withValues(alpha: 0.15),
+                backgroundColor: riskColor.withValues(alpha: 0.15),
                 child: Icon(
-                  _severityIcon(),
-                  color: severityColor,
+                  Icons.warning_amber_rounded,
+                  color: riskColor,
                 ),
               ),
 
-              const SizedBox(width: 14),
+              const SizedBox(width: 12),
 
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      report.location,
+                      report.assetName,
                       style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
@@ -81,8 +65,29 @@ class ReportCard extends StatelessWidget {
 
                     const SizedBox(height: 6),
 
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.location_on_outlined,
+                          size: 16,
+                          color: Colors.grey,
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            report.address,
+                            style: TextStyle(
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 6),
+
                     Text(
-                      report.description,
+                      report.hazardDescription,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -92,69 +97,49 @@ class ReportCard extends StatelessWidget {
 
                     const SizedBox(height: 12),
 
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 6,
+                    Row(
                       children: [
-                        _StatusChip(
-                          label: report.severity,
-                          color: severityColor,
-                        ),
-                        _StatusChip(
-                          label: report.status,
-                          color: Colors.blue,
-                        ),
-                        if (report.repeatedReports)
-                          const _StatusChip(
-                            label: 'Repeated',
-                            color: Colors.purple,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
                           ),
+                          decoration: BoxDecoration(
+                            color: riskColor.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            report.riskLevel,
+                            style: TextStyle(
+                              color: riskColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 10),
+
+                        Text(
+                          'Score: ${report.riskScore.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+
+                        const Spacer(),
+
+                        const Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                        ),
                       ],
                     ),
                   ],
                 ),
               ),
-
-              const SizedBox(width: 8),
-
-              const Icon(
-                Icons.arrow_forward_ios,
-                size: 18,
-              ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  final String label;
-  final Color color;
-
-  const _StatusChip({
-    required this.label,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 5,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
         ),
       ),
     );
