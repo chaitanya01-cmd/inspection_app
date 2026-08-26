@@ -1,6 +1,6 @@
 {
-    "name": "risk_engine_app",
-    "short_name": "risk_engine_app",
+    "name": "my_login_app",
+    "short_name": "my_login_app",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
