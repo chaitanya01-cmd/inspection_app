@@ -1,5 +1,5 @@
 name: inspection_app
-description: "Municipal Inspection and Risk Engine Application"
+description: Municipal Inspection and Risk Engine Analysis System
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
+  camera: ^0.11.3
+  gal: ^2.3.2
 
 dev_dependencies:
   flutter_test:
