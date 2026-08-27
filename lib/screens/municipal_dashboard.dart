@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'municipal_shell.dart';
 import '../services/auth_service.dart';
 
 class MunicipalDashboard extends StatelessWidget {
@@ -12,47 +13,6 @@ class MunicipalDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    return Scaffold(
-
-      appBar: AppBar(
-        title: const Text(
-          'Municipal Dashboard',
-        ),
-
-        actions: [
-
-          IconButton(
-
-            icon: const Icon(
-              Icons.logout,
-            ),
-
-            onPressed: () {
-
-              authService.logout();
-
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/login',
-                    (route) => false,
-              );
-            },
-          ),
-        ],
-      ),
-
-      body: const Center(
-
-        child: Text(
-          'Municipal Dashboard\n\nYour teammate will build this screen.',
-          textAlign: TextAlign.center,
-
-          style: TextStyle(
-            fontSize: 20,
-          ),
-        ),
-      ),
-    );
+    return const MunicipalShell();
   }
 }
