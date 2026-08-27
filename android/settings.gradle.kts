@@ -24,6 +24,7 @@ plugins {
 }
 
 include(":app")
+<<<<<<< HEAD
 
 // Force all subproject libraries to compile against Android SDK 34
 gradle.lifecycle.beforeProject {
@@ -35,3 +36,5 @@ gradle.lifecycle.beforeProject {
         }
     }
 }
+=======
+>>>>>>> 7f1b1ee8ae437682cb91dd8b4ab4d45ce3e500f6

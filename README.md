@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # flutter_application_1
+=======
+# camera_app
+>>>>>>> 7f1b1ee8ae437682cb91dd8b4ab4d45ce3e500f6
 
 A new Flutter project.
 

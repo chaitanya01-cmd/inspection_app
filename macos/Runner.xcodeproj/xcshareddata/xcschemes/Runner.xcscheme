@@ -15,7 +15,11 @@
                   <BuildableReference
                      BuildableIdentifier = "primary"
                      BlueprintIdentifier = "33CC10EC2044A3C60003C045"
+<<<<<<< HEAD
                      BuildableName = "flutter_application_1.app"
+=======
+                     BuildableName = "camera_app.app"
+>>>>>>> 7f1b1ee8ae437682cb91dd8b4ab4d45ce3e500f6
                      BlueprintName = "Runner"
                      ReferencedContainer = "container:Runner.xcodeproj">
                   </BuildableReference>
@@ -33,7 +37,11 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "33CC10EC2044A3C60003C045"
+<<<<<<< HEAD
                BuildableName = "flutter_application_1.app"
+=======
+               BuildableName = "camera_app.app"
+>>>>>>> 7f1b1ee8ae437682cb91dd8b4ab4d45ce3e500f6
                BlueprintName = "Runner"
                ReferencedContainer = "container:Runner.xcodeproj">
             </BuildableReference>
@@ -49,7 +57,11 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "33CC10EC2044A3C60003C045"
+<<<<<<< HEAD
             BuildableName = "flutter_application_1.app"
+=======
+            BuildableName = "camera_app.app"
+>>>>>>> 7f1b1ee8ae437682cb91dd8b4ab4d45ce3e500f6
             BlueprintName = "Runner"
             ReferencedContainer = "container:Runner.xcodeproj">
          </BuildableReference>
@@ -84,7 +96,11 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "33CC10EC2044A3C60003C045"
+<<<<<<< HEAD
             BuildableName = "flutter_application_1.app"
+=======
+            BuildableName = "camera_app.app"
+>>>>>>> 7f1b1ee8ae437682cb91dd8b4ab4d45ce3e500f6
             BlueprintName = "Runner"
             ReferencedContainer = "container:Runner.xcodeproj">
          </BuildableReference>
@@ -101,7 +117,11 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "33CC10EC2044A3C60003C045"
+<<<<<<< HEAD
             BuildableName = "flutter_application_1.app"
+=======
+            BuildableName = "camera_app.app"
+>>>>>>> 7f1b1ee8ae437682cb91dd8b4ab4d45ce3e500f6
             BlueprintName = "Runner"
             ReferencedContainer = "container:Runner.xcodeproj">
          </BuildableReference>
