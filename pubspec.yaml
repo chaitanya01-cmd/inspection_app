@@ -1,5 +1,7 @@
 name: inspection_app
+
 description: Municipal Inspection and Risk Engine Analysis System
+
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -13,8 +15,26 @@ dependencies:
 
   cupertino_icons: ^1.0.8
 
+  # Camera / Photos / Videos
   image_picker: ^1.2.3
+
+  # Save photos/videos to gallery
   gal: ^2.3.3
+
+  # GPS location
+  geolocator: ^14.0.2
+
+  # Convert GPS coordinates into an address
+  geocoding: ^4.0.0
+
+  # Maps
+  flutter_map: ^8.2.2
+
+  # Latitude and longitude objects for flutter_map
+  latlong2: ^0.9.1
+
+  # Date and time formatting
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:

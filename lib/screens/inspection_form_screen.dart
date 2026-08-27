@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../location_screen.dart';
 import '../models/inspection_report.dart';
 import '../services/inspection_service.dart';
 
@@ -19,6 +20,15 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
   final ImagePicker _imagePicker = ImagePicker();
 
   final List<String> _selectedImagePaths = [];
+
+  // ==========================================
+  // LOCATION DATA
+  // ==========================================
+
+  double? _latitude;
+  double? _longitude;
+  String _locationDate = '';
+  String _locationTime = '';
 
   // ==========================================
   // TEXT CONTROLLERS
@@ -110,7 +120,36 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
   }
 
   // ==========================================
-  // CAMERA / GALLERY
+  // GET CURRENT LOCATION
+  // ==========================================
+
+  Future<void> _getCurrentLocation() async {
+    final result = await Navigator.push<LocationReportData>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LocationScreen(),
+      ),
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        _latitude = result.latitude;
+        _longitude = result.longitude;
+        _addressController.text = result.address;
+        _locationDate = result.formattedDate;
+        _locationTime = result.formattedTime;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Current location captured successfully'),
+        ),
+      );
+    }
+  }
+
+  // ==========================================
+  // CAMERA
   // ==========================================
 
   Future<void> _takePhoto() async {
@@ -135,6 +174,10 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
       );
     }
   }
+
+  // ==========================================
+  // GALLERY
+  // ==========================================
 
   Future<void> _pickFromGallery() async {
     try {
@@ -226,9 +269,15 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
       address: _addressController.text.trim(),
       ward: _wardController.text.trim(),
       zone: _zoneController.text.trim(),
-      latitude: null,
-      longitude: null,
-      assetAge: int.tryParse(_assetAgeController.text.trim()) ?? 0,
+
+      // SAVED GPS COORDINATES
+      latitude: _latitude,
+      longitude: _longitude,
+
+      assetAge: int.tryParse(
+            _assetAgeController.text.trim(),
+          ) ??
+          0,
       responsibleAuthority: _authorityController.text.trim(),
 
       hazardCategory: _hazardCategory,
@@ -266,7 +315,6 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
       severity: _riskLevel == 'Critical' ? 'Critical' : _riskLevel,
       status: 'Open',
 
-      // SAVED EVIDENCE PHOTOS
       imagePaths: List<String>.from(_selectedImagePaths),
       evidenceNotes: _evidenceNotesController.text.trim(),
 
@@ -378,7 +426,7 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
         ),
         items: items
             .map(
-              (item) => DropdownMenuItem(
+              (item) => DropdownMenuItem<String>(
                 value: item,
                 child: Text(item),
               ),
@@ -466,6 +514,151 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
   }
 
   // ==========================================
+  // LOCATION SECTION
+  // ==========================================
+
+  Widget _locationSection() {
+    final bool hasLocation =
+        _latitude != null && _longitude != null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionTitle(
+          'Asset & Location Details',
+          Icons.location_city,
+        ),
+
+        _textField(
+          controller: _assetNameController,
+          label: 'Asset / Property Name',
+        ),
+
+        _dropdown(
+          label: 'Asset Type',
+          value: _assetType,
+          items: const [
+            'Road',
+            'Bridge',
+            'Building',
+            'Drainage',
+            'Water Pipeline',
+            'Electrical Infrastructure',
+            'Public Facility',
+            'Other',
+          ],
+          onChanged: (value) {
+            setState(() {
+              _assetType = value!;
+            });
+          },
+        ),
+
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: _getCurrentLocation,
+            icon: const Icon(Icons.my_location),
+            label: Text(
+              hasLocation
+                  ? 'Refresh Current Location'
+                  : 'Get Current Location',
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 14),
+
+        if (hasLocation)
+          Card(
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(
+                        Icons.location_on,
+                        color: Colors.green,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        'Current Location Captured',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Latitude: ${_latitude!.toStringAsFixed(6)}',
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Longitude: ${_longitude!.toStringAsFixed(6)}',
+                  ),
+                  if (_addressController.text.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      'Address: ${_addressController.text}',
+                    ),
+                  ],
+                  if (_locationDate.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      'Captured Date: $_locationDate',
+                    ),
+                  ],
+                  if (_locationTime.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      'Captured Time: $_locationTime',
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+
+        const SizedBox(height: 14),
+
+        _textField(
+          controller: _addressController,
+          label: 'Address / Location',
+          maxLines: 2,
+        ),
+
+        _textField(
+          controller: _wardController,
+          label: 'Ward',
+        ),
+
+        _textField(
+          controller: _zoneController,
+          label: 'Zone',
+        ),
+
+        _textField(
+          controller: _assetAgeController,
+          label: 'Asset Age (Years)',
+          keyboardType: TextInputType.number,
+        ),
+
+        _textField(
+          controller: _authorityController,
+          label: 'Responsible Authority',
+        ),
+      ],
+    );
+  }
+
+  // ==========================================
   // EVIDENCE PHOTO SECTION
   // ==========================================
 
@@ -523,7 +716,8 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
         else
           GridView.builder(
             shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
+            physics:
+                const NeverScrollableScrollPhysics(),
             itemCount: _selectedImagePaths.length,
             gridDelegate:
                 const SliverGridDelegateWithFixedCrossAxisCount(
@@ -533,13 +727,15 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
               childAspectRatio: 1,
             ),
             itemBuilder: (context, index) {
-              final imagePath = _selectedImagePaths[index];
+              final imagePath =
+                  _selectedImagePaths[index];
 
               return Stack(
                 fit: StackFit.expand,
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius:
+                        BorderRadius.circular(12),
                     child: Image.file(
                       File(imagePath),
                       fit: BoxFit.cover,
@@ -557,7 +753,8 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
                           color: Colors.white,
                           size: 18,
                         ),
-                        onPressed: () => _removeImage(index),
+                        onPressed: () =>
+                            _removeImage(index),
                       ),
                     ),
                   ),
@@ -630,62 +827,7 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
 
             const Divider(height: 32),
 
-            _sectionTitle(
-              'Asset & Location Details',
-              Icons.location_city,
-            ),
-
-            _textField(
-              controller: _assetNameController,
-              label: 'Asset / Property Name',
-            ),
-
-            _dropdown(
-              label: 'Asset Type',
-              value: _assetType,
-              items: const [
-                'Road',
-                'Bridge',
-                'Building',
-                'Drainage',
-                'Water Pipeline',
-                'Electrical Infrastructure',
-                'Public Facility',
-                'Other',
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _assetType = value!;
-                });
-              },
-            ),
-
-            _textField(
-              controller: _addressController,
-              label: 'Address / Location',
-              maxLines: 2,
-            ),
-
-            _textField(
-              controller: _wardController,
-              label: 'Ward',
-            ),
-
-            _textField(
-              controller: _zoneController,
-              label: 'Zone',
-            ),
-
-            _textField(
-              controller: _assetAgeController,
-              label: 'Asset Age (Years)',
-              keyboardType: TextInputType.number,
-            ),
-
-            _textField(
-              controller: _authorityController,
-              label: 'Responsible Authority',
-            ),
+            _locationSection(),
 
             const Divider(height: 32),
 
@@ -992,10 +1134,6 @@ class _InspectionFormScreenState extends State<InspectionFormScreen> {
             ),
 
             const Divider(height: 32),
-
-            // ======================================
-            // EVIDENCE WITH CAMERA AND GALLERY
-            // ======================================
 
             _evidenceSection(),
 
